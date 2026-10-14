@@ -69,6 +69,8 @@ A virtual pulse test (C/20 discharge for the open-circuit voltage; 2C pulses of 
 
 (Full sweep in `results/step3_sizing.csv`.)
 
+> These results use a synthetic frequency signal. Step 4 repeats the sweep with measured frequency and finds that most of the benefit came from the signal's unrealistically fast fluctuations.
+
 - Even the smallest bank, 1.7 kWh, removes 81 to 93% of the battery's current reversals, the micro-cycling that FCR imposes on it.
 - A longer filter protects the battery more but empties a small bank: at τ = 120 s the 1.7 kWh bank runs out and FCR delivery suffers (1.3% error). Bank size and EMS tuning have to be chosen together.
 - Small banks add losses (the supercapacitor works hard near half voltage), while large banks reduce them below the battery-only case. Energy efficiency, battery stress and bank cost pull in different directions, which is the trade-off a sizing study has to settle.
