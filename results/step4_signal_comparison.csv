@@ -1,0 +1,5 @@
+signal,std_mHz,step_std_mHz,autocorr_60s,autocorr_300s,battery_only_reversals_per_h,battery_only_rms_c_rate,smallest_bank_for_80pct
+synthetic (step 3),19.303,6.521,0.297,0.084,269.0,0.0966,"5 strings, tau 30 s"
+"measured, 50th pct variability (2019-01-28 15:00)",16.683,1.144,0.691,0.362,37.0,0.0869,none
+"measured, 90th pct variability (2019-10-06 23:00)",24.141,1.282,0.832,0.429,32.0,0.122,"40 strings, tau 120 s"
+"measured, 99th pct variability (2019-09-03 21:00)",30.419,1.217,0.847,0.243,16.5,0.1558,none

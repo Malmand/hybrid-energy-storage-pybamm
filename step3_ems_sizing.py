@@ -35,7 +35,7 @@ DT, HOURS, P_FCR = 1.0, 2, 1.0e6
 def frequency(seed=3):
     rng = np.random.default_rng(seed)
     n = int(HOURS * 3600 / DT)
-    f = np.zeros(n)
+    f = np.full(n, 50.0)
     slow = fast = 0.0
     for k in range(1, n):
         slow += -slow / 60 * DT + 0.020 * np.sqrt(2 / 60 * DT) * rng.standard_normal()

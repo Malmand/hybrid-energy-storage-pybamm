@@ -1,0 +1,42 @@
+name: Condense measured grid frequency
+on:
+  push:
+    branches: [frequency-data]
+    paths: ['.github/workflows/frequency.yml', 'tools/prepare_frequency.py']
+permissions:
+  contents: write
+concurrency:
+  group: frequency
+  cancel-in-progress: true
+jobs:
+  condense:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas numpy
+      - name: Download 2019_cleansed.zip from Zenodo (10.5281/zenodo.5105820)
+        run: |
+          mkdir -p work
+          sudo apt-get -qq install -y aria2 > /dev/null
+          aria2c -x16 -s16 -k10M --max-tries=20 --retry-wait=10 --summary-interval=60 -d work -o 2019_cleansed.zip \
+            "https://zenodo.org/records/5105820/files/2019_cleansed.zip?download=1" | tail -4 | tee work/prepare_log.txt
+      - name: Condense
+        working-directory: work
+        run: |
+          set -o pipefail
+          python ../tools/prepare_frequency.py 2019_cleansed.zip 2>&1 | tee -a prepare_log.txt
+      - name: Commit results
+        if: always()
+        run: |
+          mkdir -p data/frequency
+          cp work/freq_* work/prepare_log.txt data/frequency/ 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add data/frequency
+          git commit -m "Condensed frequency data [skip ci]" || echo "nothing to commit"
+          git pull --rebase origin frequency-data || true
+          git push

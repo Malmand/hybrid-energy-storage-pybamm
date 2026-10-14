@@ -1,2 +1,3 @@
 __pycache__/
 *.pyc
+data/frequency/freq_windows.npz
