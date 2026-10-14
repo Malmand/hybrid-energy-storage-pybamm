@@ -96,7 +96,7 @@ The spread was right, but the synthetic signal put far too much of it into fast,
 Repeating the step 3 sweep on three measured 2 h periods (median, 90th and 99th percentile variability of 2019):
 
 - **The battery alone sees 7 to 16 times fewer current reversals** than with the synthetic signal (17 to 37 per hour instead of 269), and that is the problem the supercapacitor was meant to solve.
-- **A supercapacitor bank still removes most of the remaining reversals**, but in absolute terms it saves only 10 to 25 reversals per hour, and the 80% target of step 3 is met in only one of the three periods, with the largest bank.
+- **A supercapacitor bank still removes most of the remaining reversals**, but in absolute terms it saves only 7 to 29 reversals per hour, and the 80% target of step 3 is met in only one of the three periods, with the largest bank.
 - **What drives battery stress on real frequency is the slow component.** The battery RMS C-rate rises from 0.087 to 0.156 between the median and the 99th-percentile period, and a supercapacitor sized in kWh cannot absorb deviations that last for minutes.
 
 **Conclusion.** With measured Continental European frequency, a supercapacitor bank is hard to justify for FCR on micro-cycling grounds alone. The step 3 result was an artefact of the synthetic signal, which is why the model inputs needed checking against data. The supercapacitor case would need another argument, such as fast frequency response products with sub-second activation or very high cycle counts.
