@@ -1,0 +1,5 @@
+parameter,multiplier
+Negative electrode active material volume fraction,0.9919
+Negative particle diffusivity,1.305
+Positive particle diffusivity,0.925
+Exchange-current density (both electrodes),0.853

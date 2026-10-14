@@ -1,0 +1,4 @@
+parameters,rmse_1C_mV,rmse_5C_mV
+Literature parameters,36.9,81.5
+"After stage 1 (capacity, 1C)",15.3,107.3
+"After stage 2 (transport, 5C)",15.0,23.0

@@ -1,0 +1,7 @@
+pybamm>=25.0
+numpy
+scipy
+pandas
+matplotlib
+pythonfmu>=0.6
+fmpy>=0.3
