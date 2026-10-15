@@ -66,13 +66,13 @@ def extract(name, cell):
         pre = sol.cycles[4 * k + 1]["Voltage [V]"].entries[-1]
         I = float(np.mean(c["Current [A]"].entries[1:]))
         v_p = c["Voltage [V]"].entries
-        R0 = (pre - v_p[1]) / I if len(v_p) > 1 else np.nan
+        R0 = (pre - v_p[1]) / I if len(v_p) > 1 else np.nan  # instant drop at pulse start
         t_r = r["Time [s]"].entries - r["Time [s]"].entries[0]
         v_r = r["Voltage [V]"].entries
 
         def resid(x):
             R1, tau = np.exp(x)
-            v1_0 = I * R1 * (1 - np.exp(-10 / tau))
+            v1_0 = I * R1 * (1 - np.exp(-10 / tau))  # RC voltage at the end of the 10 s pulse
             return pre - v1_0 * np.exp(-t_r / tau) - v_r
         fit = least_squares(resid, x0=np.log([R0, 20.0]), bounds=(np.log([R0 * 1e-3, 0.5]), np.log([R0 * 100, 2000])))
         R1, tau = np.exp(fit.x)
@@ -84,7 +84,7 @@ def extract(name, cell):
     r_tot = (np.interp(ocv_soc, tab.soc, tab.R0_ohm_Ah) + np.interp(ocv_soc, tab.soc, tab.R1_ohm_Ah)) / Q
     ocv_v = ocv_v + i_c20 * r_tot
     model = dict(name=name, label=cell["label"], capacity_Ah=Q,
-                 ocv_soc=ocv_soc[::-1][::20].tolist(), ocv_v=ocv_v[::-1][::20].tolist(),
+                 ocv_soc=ocv_soc[::-1][::20].tolist(), ocv_v=ocv_v[::-1][::20].tolist(),  # ascending SOC, thinned
                  soc=tab.soc.tolist(), R0_ohm_Ah=tab.R0_ohm_Ah.tolist(), R1_ohm_Ah=tab.R1_ohm_Ah.tolist(),
                  tau_s=tab.tau_s.tolist(), v_min=float(p["Lower voltage cut-off [V]"]),
                  v_max=float(p["Upper voltage cut-off [V]"]))

@@ -19,7 +19,7 @@ class HessFmu(Fmi2Slave):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        sys.path.insert(0, self.resources)
+        sys.path.insert(0, self.resources)  # plant modules are packed as FMU resources
         self.P_bat_set = self.P_sc_set = 0.0
         self.P_bat = self.P_sc = self.P_loss = 0.0
         self.SOC_bat = self.SOC_sc = self.V_bat = self.V_sc = 0.0

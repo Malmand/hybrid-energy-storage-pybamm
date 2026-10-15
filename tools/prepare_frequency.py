@@ -61,6 +61,7 @@ def main():
                  max_abs_mHz=float(df.abs().max() * 1e3), frac_beyond_200mHz=float((df.abs() > 0.2).mean()),
                  frac_beyond_100mHz=float((df.abs() > 0.1).mean()),
                  step_std_mHz=float(d1.std() * 1e3), fcr_reversals_per_h=float(rev),
+                 # /2: charge + discharge per cycle
                  fcr_throughput_full_cycles_per_day=float(req.abs().sum() / 3600 / (len(f.dropna()) / 86400) / 2),
                  autocorr=ac,
                  minute_of_hour_mean_abs_mHz={str(m): float(v) for m, v in
@@ -69,7 +70,7 @@ def main():
     print(json.dumps({k: v for k, v in stats.items() if k != "minute_of_hour_mean_abs_mHz"}, indent=1))
     # 2 h excerpts: median, 90th and 99th percentile variability, complete data only
     hh = h[h.valid > 0.999].copy()
-    roll = hh.std_mHz.rolling(2).mean().dropna()
+    roll = hh.std_mHz.rolling(2).mean().dropna()  # 2 h windows
     pick = {}
     for q in (0.5, 0.9, 0.99):
         t_end = (roll - roll.quantile(q)).abs().idxmin()

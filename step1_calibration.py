@@ -36,10 +36,11 @@ def load(name):
 def parameters(am_scale=1.0, x=(0, 0, 0)):
     base = pybamm.ParameterValues("Ecker2015")
     p = base.copy()
-    a = 10 ** np.asarray(x, float)
+    a = 10 ** np.asarray(x, float)  # log10 multipliers
     scale = lambda f, k: (lambda *args: k * f(*args))
     p.update({AM: base[AM] * am_scale,
               NAMES[0]: scale(base[NAMES[0]], a[0]), NAMES[1]: scale(base[NAMES[1]], a[1]),
+              # one multiplier for both exchange currents
               NAMES[2]: scale(base[NAMES[2]], a[2]), NAMES[3]: scale(base[NAMES[3]], a[2])})
     return p
 
@@ -55,8 +56,8 @@ def residual(p, data, c_rate):
     try:
         t, v = simulate(p, c_rate)
     except Exception:
-        return np.ones(len(data))
-    return np.interp(data[:, 0], t, v, right=2.5) - data[:, 1]
+        return np.ones(len(data))  # failed solve: large residual
+    return np.interp(data[:, 0], t, v, right=2.5) - data[:, 1]  # after cut-off: hold at 2.5 V
 
 
 def rmse_mv(p, data, c_rate):

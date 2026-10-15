@@ -13,16 +13,16 @@ class ECMCell:
     def params(self):
         m, s = self.m, self.soc
         return (np.interp(s, m["ocv_soc"], m["ocv_v"]),
-                np.interp(s, m["soc"], m["R0_ohm_Ah"]) / self.Q,
+                np.interp(s, m["soc"], m["R0_ohm_Ah"]) / self.Q,  # ohm*Ah -> ohm for this capacity
                 np.interp(s, m["soc"], m["R1_ohm_Ah"]) / self.Q,
                 np.interp(s, m["soc"], m["tau_s"]))
 
     def step_current(self, i, dt):
         ocv, r0, r1, tau = self.params()
         v = ocv - self.v1 - r0 * i
-        a = np.exp(-dt / tau)
+        a = np.exp(-dt / tau)  # exact RC update for constant current
         self.v1 = self.v1 * a + r1 * i * (1 - a)
-        self.soc -= i * dt / 3600 / self.Q
+        self.soc -= i * dt / 3600 / self.Q  # coulomb counting
         return v
 
 
@@ -32,7 +32,7 @@ class ECMPack:
     def __init__(self, m, energy_kWh, n_series, soc0=0.5, soc_min=0.1, soc_max=0.95):
         self.m, self.ns = m, n_series
         v_nom = float(np.interp(0.5, m["ocv_soc"], m["ocv_v"]))
-        self.Q = energy_kWh * 1000 / (n_series * v_nom) if energy_kWh > 0 else 0.0
+        self.Q = energy_kWh * 1000 / (n_series * v_nom) if energy_kWh > 0 else 0.0  # Ah per cell string
         self.cell = ECMCell(m, soc0, self.Q) if self.Q > 0 else None
         self.soc_min, self.soc_max = soc_min, soc_max
 
@@ -64,10 +64,10 @@ class ECMPack:
         ocv, r0, r1, _ = self.cell.params()
         e = (ocv - self.cell.v1) * self.ns
         r = r0 * self.ns
-        disc = e * e - 4 * r * p
-        i = (e - np.sqrt(max(disc, 0.0))) / (2 * r)
+        disc = e * e - 4 * r * p  # solve p = (e - r i) i for i
+        i = (e - np.sqrt(max(disc, 0.0))) / (2 * r)  # smaller root: physical branch
         v_cell = self.cell.step_current(i, dt)
-        loss = (i * i * r0 + (self.cell.v1 ** 2) / r1) * self.ns
+        loss = (i * i * r0 + (self.cell.v1 ** 2) / r1) * self.ns  # ohmic + RC branch losses
         return p, i, v_cell * self.ns, loss
 
 
@@ -81,7 +81,7 @@ class SuperCapModule:
 
     def __init__(self, n_series, n_parallel, v0_frac=0.8):
         self.ns, self.np_ = n_series, n_parallel
-        self.C = self.C_CELL * n_parallel / n_series if n_parallel else 0.0
+        self.C = self.C_CELL * n_parallel / n_series if n_parallel else 0.0  # series divides C
         self.R = self.ESR_CELL * n_series / n_parallel if n_parallel else 0.0
         self.v_max = self.V_CELL * n_series
         self.v_min = 0.5 * self.v_max
@@ -103,8 +103,9 @@ class SuperCapModule:
         e_avail = 0.5 * self.C * (self.v ** 2 - self.v_min ** 2)
         e_room = 0.5 * self.C * (self.v_max ** 2 - self.v ** 2)
         p = float(np.clip(p_w, -e_room / dt, e_avail / dt))
-        disc = self.v ** 2 - 4 * self.R * p
+        disc = self.v ** 2 - 4 * self.R * p  # p = (v - R i) i
         i = (self.v - np.sqrt(max(disc, 0.0))) / (2 * self.R)
         loss = i * i * self.R
+        # energy balance: d(C v^2 / 2) = -(p + loss) dt
         self.v = float(np.sqrt(max(self.v ** 2 - 2 * (p + loss) * dt / self.C, 0.0)))
         return p, i, self.v, loss

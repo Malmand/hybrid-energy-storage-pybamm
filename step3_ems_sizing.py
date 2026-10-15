@@ -38,8 +38,8 @@ def frequency(seed=3):
     f = np.full(n, 50.0)
     slow = fast = 0.0
     for k in range(1, n):
-        slow += -slow / 60 * DT + 0.020 * np.sqrt(2 / 60 * DT) * rng.standard_normal()
-        fast += -fast / 3 * DT + 0.006 * np.sqrt(2 / 3 * DT) * rng.standard_normal()
+        slow += -slow / 60 * DT + 0.020 * np.sqrt(2 / 60 * DT) * rng.standard_normal()  # OU: sd 20 mHz, tau 60 s
+        fast += -fast / 3 * DT + 0.006 * np.sqrt(2 / 3 * DT) * rng.standard_normal()  # OU: sd 6 mHz, tau 3 s
         f[k] = 50 + slow + fast
     return f
 
@@ -55,7 +55,7 @@ class FilterEMS:
     def split(self, p_req, soc_sc):
         if not self.has_sc:
             return p_req, 0.0
-        self.p_lp += (p_req - self.p_lp) * DT / self.tau
+        self.p_lp += (p_req - self.p_lp) * DT / self.tau  # first-order low-pass
         p_bat = self.p_lp - self.k * (soc_sc - 0.5)       # low SC charge -> battery supplies more
         return p_bat, p_req - p_bat
 
@@ -75,7 +75,7 @@ def run(p_req, sc_parallel, tau):
         soc_sc = r["soc_sc"] if sc_parallel else 0.5
     q = plant.bat.Q
     i = out["i_bat"]
-    sign = np.sign(np.where(np.abs(i) > 0.01 * q, i, 0))
+    sign = np.sign(np.where(np.abs(i) > 0.01 * q, i, 0))  # ignore currents below 0.01C
     nz = sign[sign != 0]
     reversals = int(np.sum(nz[1:] != nz[:-1])) / HOURS
     delivered = out["p_bat"] + out["p_sc"]
